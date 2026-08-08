@@ -17,9 +17,11 @@ from pathlib import Path
 
 import openpyxl
 
+import argparse
+
 BASE = Path(__file__).resolve().parent
 XLSX = BASE / "接口测试用例.xlsx"
-OUT = BASE / "接口自动化" / "examples" / "real_cases"
+OUT = BASE / "接口自动化" / "projects" / "ziceyunyu" / "cases"
 DESC = BASE / "recon" / "api_descriptions.json"
 # GET 可自动化类型
 GET_TYPES = {"正常流", "参数校验", "边界值"}
@@ -37,10 +39,10 @@ TIME_PARAMS = {"startTime", "endTime", "startDate", "endDate",
                "sendStartTime", "sendEndTime", "queryDate"}
 
 
-def load_desc() -> dict:
-    if not DESC.exists():
+def load_desc(desc_path: Path) -> dict:
+    if not desc_path.exists():
         return {}
-    return json.loads(DESC.read_text(encoding="utf-8"))
+    return json.loads(desc_path.read_text(encoding="utf-8"))
 
 
 def parse_params(text: str | None) -> dict:
@@ -116,15 +118,23 @@ def parse_body(text: str | None) -> dict | None:
 
 
 def main():
-    wb = openpyxl.load_workbook(XLSX, read_only=True)
+    ap = argparse.ArgumentParser(description="Excel 用例 -> YAML（多项目隔离）")
+    ap.add_argument("--excel", default=str(XLSX), help="Excel 用例文件路径")
+    ap.add_argument("--out", default=str(OUT), help="输出 YAML 目录（项目 cases 目录）")
+    ap.add_argument("--desc", default=str(DESC), help="接口描述 json（可选）")
+    args = ap.parse_args()
+    excel, out_dir, desc_path = Path(args.excel), Path(args.out), Path(args.desc)
+
+    wb = openpyxl.load_workbook(excel, read_only=True)
     ws = wb["接口测试用例"]
     rows = list(ws.iter_rows(values_only=True))
     data = rows[1:]
-    desc = load_desc()
+    desc = load_desc(desc_path)
 
-    OUT.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     by_module: dict[str, list] = {}
     skipped = 0
+
 
     for r in data:
         module, path, method, case_id, title, ttype = r[0], r[1], r[2], r[3], r[4], r[5]
@@ -194,7 +204,7 @@ def main():
     total = 0
     for module, cases in sorted(by_module.items()):
         safe = re.sub(r"[^\w\u4e00-\u9fff]+", "_", module).strip("_") or "misc"
-        out = OUT / f"{safe}.yaml"
+        out = out_dir / f"{safe}.yaml"
 
         def yaml_val(v):
             v = str(v)

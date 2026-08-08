@@ -1,0 +1,12 @@
+{
+  "name": "智策云语",
+  "base_url": "http://aiwh-dev.junbangbao.cn",
+  "gateway_prefix": "gw/enterprise",
+  "auth_file": "auth.json",
+  "auth_cookie": "Admin-Token",
+  "epic": "智策云语 接口自动化",
+  "timeout": 15,
+  "retries": 1,
+  "excel": "../../接口测试用例.xlsx",
+  "desc": "../../recon/api_descriptions.json"
+}

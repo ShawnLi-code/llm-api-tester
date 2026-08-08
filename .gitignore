@@ -9,3 +9,5 @@ __pycache__/
 reports/
 tools/
 reports/
+projects/*/auth.json
+projects/*/reports/
