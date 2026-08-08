@@ -1,5 +1,5 @@
 cases:
-  - name: 声音复刻-API-238 - 正常请求
+  - name: 声音复刻-API-238
     method: GET
     path: /audio/cody/select/trailUrl
     expected:
@@ -8,3 +8,9 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
+  - name: 声音复刻-API-239 - 用POST调GET接口
+    method: POST
+    path: /audio/cody/select/trailUrl
+    expected:
+      status: 405
+    tags: [异常]

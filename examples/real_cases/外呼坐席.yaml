@@ -1,5 +1,5 @@
 cases:
-  - name: 外呼坐席-API-199 - 正常请求
+  - name: 外呼坐席-API-199 - 可选坐席下拉框选择
     method: GET
     path: /call/agent/select/canUse
     expected:
@@ -8,7 +8,13 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
-  - name: 外呼坐席-API-204 - 正常请求
+  - name: 外呼坐席-API-200 - 用POST调GET接口
+    method: POST
+    path: /call/agent/select/canUse
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 外呼坐席-API-204 - 坐席数量状态
     method: GET
     path: /call/agent/seatNum
     expected:
@@ -17,3 +23,9 @@ cases:
         type: object
         required: [remainSeatNum, totalSeatNum, hasProgressTask, code, msg]
     tags: [正常流]
+  - name: 外呼坐席-API-205 - 用POST调GET接口
+    method: POST
+    path: /call/agent/seatNum
+    expected:
+      status: 405
+    tags: [异常]

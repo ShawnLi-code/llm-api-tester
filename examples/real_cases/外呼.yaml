@@ -1,5 +1,11 @@
 cases:
-  - name: 外呼-API-191 - 正常请求
+  - name: 外呼-API-190 - 执行试听
+    method: POST
+    path: /outbound/trial/call/experience
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 外呼-API-191
     method: GET
     path: /outbound/trial/record
     params:
@@ -11,3 +17,12 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 外呼-API-192 - 用POST调GET接口
+    method: POST
+    path: /outbound/trial/record
+    params:
+      callDirection: 呼出
+      numberStatus: 1
+    expected:
+      status: 405
+    tags: [异常]

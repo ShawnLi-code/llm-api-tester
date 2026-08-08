@@ -1,0 +1,7 @@
+cases:
+  - name: 大语言模-API-349 - 创建聊天补全
+    method: POST
+    path: /v1/api/chat/completions
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

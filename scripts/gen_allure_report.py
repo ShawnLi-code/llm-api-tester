@@ -18,7 +18,11 @@ AUTH = BASE.parent / "recon" / "auth_default.json"
 
 
 def write_environment() -> None:
-    """写 allure 环境信息（显示在报告 Environment 标签）"""
+    """写 allure 环境信息（显示在报告 Environment 标签）。
+
+    Java properties 格式只认 ISO-8859-1，中文必须 Unicode 转义（反斜杠 uXXXX），
+    否则 allure 解析出乱码。
+    """
     env: dict[str, str] = {
         "Environment": "dev",
         "Base URL": "http://aiwh-dev.junbangbao.cn",
@@ -32,7 +36,13 @@ def write_environment() -> None:
         env["认证"] = f"{cookies} (token 已脱敏)"
     env_dir = BASE / "reports" / "allure-results"
     env_dir.mkdir(parents=True, exist_ok=True)
-    lines = "\n".join(f"{k}={v}" for k, v in env.items())
+
+    def esc(v: str) -> str:
+        return "".join(
+            c if ord(c) < 128 else "\\u%04x" % ord(c) for c in v
+        )
+
+    lines = "\n".join(f"{esc(k)}={esc(v)}" for k, v in env.items())
     (env_dir / "environment.properties").write_text(lines, encoding="utf-8")
 
 

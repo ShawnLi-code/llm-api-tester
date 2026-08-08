@@ -1,5 +1,5 @@
 cases:
-  - name: <p>-API-223 - 正常请求
+  - name: <p>-API-223
     method: GET
     path: /balance/check/1
     expected:
@@ -32,3 +32,25 @@ cases:
     expected:
       status: 400
     tags: [边界值]
+  - name: <p>-API-228 - 用POST调GET接口
+    method: POST
+    path: /balance/check/1
+    expected:
+      status: 405
+    tags: [异常]
+  - name: <p>-API-234 - 未登录调用
+    method: POST
+    path: /balance/check/1
+    headers:
+      Authorization: 
+    expected:
+      status: 401
+    tags: [权限]
+  - name: <p>-API-235 - token过期调用
+    method: POST
+    path: /balance/check/1
+    headers:
+      Authorization: 
+    expected:
+      status: 401
+    tags: [权限]

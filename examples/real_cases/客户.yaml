@@ -1,0 +1,28 @@
+cases:
+  - name: 客户-API-035 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /customer/export/list/finish
+    params:
+      taskOutboundId: 1
+      callStatus: 1
+      labelId: 1
+      labelAiId: 1
+      numberStatus: CALL_SUCCESS
+      pageNum: 1
+      pageSize: 10
+      sortType: 1
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 客户-API-037 - 僵尸接口——直接调用验证是否仍在线
+    method: DELETE
+    path: /customer/del/999999
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 客户-API-040 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /customer/getTemplate
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

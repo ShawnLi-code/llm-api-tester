@@ -1,5 +1,5 @@
 cases:
-  - name: 通知公告-API-177 - 正常请求
+  - name: 通知公告-API-177
     method: GET
     path: /announcement/list
     params:
@@ -11,3 +11,12 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 通知公告-API-178 - 用POST调GET接口
+    method: POST
+    path: /announcement/list
+    params:
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]

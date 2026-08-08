@@ -1,0 +1,7 @@
+cases:
+  - name: 套餐模块-API-176 - 套餐删除
+    method: POST
+    path: /billing/package/
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

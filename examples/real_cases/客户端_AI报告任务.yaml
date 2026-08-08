@@ -1,5 +1,11 @@
 cases:
-  - name: 客户端--API-351 - 正常请求
+  - name: 客户端--API-350 - 1. 提交生成任务
+    method: POST
+    path: /ppt/task/submit
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 客户端--API-351
     method: GET
     path: /ppt/task/list
     params:
@@ -13,3 +19,14 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 客户端--API-352 - 用POST调GET接口
+    method: POST
+    path: /ppt/task/list
+    params:
+      scriptId: 1
+      status: PENDING
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]

@@ -1,5 +1,5 @@
 cases:
-  - name: 用户-API-012 - 正常请求
+  - name: 用户-API-012 - 获取用户配置的话术
     method: GET
     path: /user/callScript
     expected:
@@ -8,7 +8,25 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
-  - name: 用户-API-020 - 正常请求
+  - name: 用户-API-013 - 用POST调GET接口
+    method: POST
+    path: /user/callScript
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 用户-API-017 - 退出登录
+    method: POST
+    path: /user/logout
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 用户-API-019 - /user/修改头像
+    method: POST
+    path: /user/修改头像
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 用户-API-020
     method: GET
     path: /user/getAnnouncement/1
     expected:
@@ -29,3 +47,21 @@ cases:
     expected:
       status: 400
     tags: [边界值]
+  - name: 用户-API-023 - 用POST调GET接口
+    method: POST
+    path: /user/getAnnouncement/1
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 用户-API-027 - /user/avatar
+    method: POST
+    path: /user/avatar
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 用户-API-028 - /user/nickName
+    method: POST
+    path: /user/nickName
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

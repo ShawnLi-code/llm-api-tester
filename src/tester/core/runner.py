@@ -59,7 +59,9 @@ class Runner:
 
     def run_one(self, case: TestCase) -> ReportEntry:
         url = self.config.base_url.rstrip("/") + case.path
+        # 用例级 headers 覆盖全局；值为空串/None 表示移除该 header（如权限用例去掉 Authorization）
         headers = {**self.config.headers, **case.headers}
+        headers = {k: v for k, v in headers.items() if v not in ("", None)}
         client = self._get_client()
         last_err: Optional[Exception] = None
         for attempt in range(self.config.retries + 1):

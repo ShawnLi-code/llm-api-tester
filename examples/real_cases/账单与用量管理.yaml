@@ -1,5 +1,5 @@
 cases:
-  - name: 账单与用-API-285 - 正常请求
+  - name: 账单与用-API-285 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
@@ -8,85 +8,91 @@ cases:
         type: object
         required: [balance, totalRechargeAmount, totalConsumption, code, msg]
     tags: [正常流]
-  - name: 账单与用-API-286 - consumptionType 超长250字符
+  - name: 账单与用-API-286 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-287 - userId 传入负数
+  - name: 账单与用-API-287 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-288 - userId 传入超大值
+  - name: 账单与用-API-288 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-289 - userId 传入非数字
+  - name: 账单与用-API-289 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-290 - queryType 超长250字符
+  - name: 账单与用-API-290 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-291 - startDate 超长250字符
+  - name: 账单与用-API-291 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-292 - endDate 超长250字符
+  - name: 账单与用-API-292 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-293 - pageNum 传入负数
+  - name: 账单与用-API-293 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-294 - pageNum 传入超大值
+  - name: 账单与用-API-294 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-295 - pageNum 传入非数字
+  - name: 账单与用-API-295 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-296 - pageSize 传入负数
+  - name: 账单与用-API-296 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-297 - pageSize 传入超大值
+  - name: 账单与用-API-297 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-298 - pageSize 传入非数字
+  - name: 账单与用-API-298 - 获取账单汇总数据
     method: GET
     path: /billing/summary
     expected:
       status: 400
     tags: [边界值]
-  - name: 账单与用-API-304 - 正常请求
+  - name: 账单与用-API-299 - 用POST调GET接口
+    method: POST
+    path: /billing/summary
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-304
     method: GET
     path: /billing/rechargeRecords
     params:
@@ -100,7 +106,18 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 账单与用-API-309 - 正常请求
+  - name: 账单与用-API-305 - 用POST调GET接口
+    method: POST
+    path: /billing/rechargeRecords
+    params:
+      userId: 1
+      queryType: All
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-309
     method: GET
     path: /billing/statistics/callDuration
     params:
@@ -116,7 +133,20 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 账单与用-API-315 - 正常请求
+  - name: 账单与用-API-310 - 用POST调GET接口
+    method: POST
+    path: /billing/statistics/callDuration
+    params:
+      userId: 1
+      callScriptId: 1
+      callType: INTERACTIVITY
+      queryType: All
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-315
     method: GET
     path: /billing/statistics/sms
     params:
@@ -130,7 +160,18 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 账单与用-API-323 - 正常请求
+  - name: 账单与用-API-316 - 用POST调GET接口
+    method: POST
+    path: /billing/statistics/sms
+    params:
+      userId: 1
+      queryType: All
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-323
     method: GET
     path: /billing/totalBilling
     params:
@@ -144,7 +185,24 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 账单与用-API-329 - 正常请求
+  - name: 账单与用-API-324 - 用POST调GET接口
+    method: POST
+    path: /billing/totalBilling
+    params:
+      userId: 1
+      queryType: All
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-328 - 购买并发
+    method: POST
+    path: /billing/prepaidBalance
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 账单与用-API-329
     method: GET
     path: /billing/prepaidBalance/details
     params:
@@ -159,7 +217,19 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 账单与用-API-334 - 正常请求
+  - name: 账单与用-API-330 - 用POST调GET接口
+    method: POST
+    path: /billing/prepaidBalance/details
+    params:
+      userId: 1
+      queryType: All
+      concurrencyStatus: NOT_EFFECTIVE
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 账单与用-API-334
     method: GET
     path: /billing/totalBilling/statistics
     params:
@@ -173,3 +243,14 @@ cases:
         type: object
         required: [total, call, sms, concurrency, display, code]
     tags: [正常流]
+  - name: 账单与用-API-335 - 用POST调GET接口
+    method: POST
+    path: /billing/totalBilling/statistics
+    params:
+      userId: 1
+      queryType: All
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]

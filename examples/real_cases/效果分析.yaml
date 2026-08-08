@@ -1,5 +1,5 @@
 cases:
-  - name: 效果分析-API-244 - 正常请求
+  - name: 效果分析-API-244
     method: GET
     path: /effect-analysis/getCustomerFocus
     params:
@@ -74,3 +74,12 @@ cases:
     expected:
       status: 400
     tags: [边界值]
+  - name: 效果分析-API-252 - 用POST调GET接口
+    method: POST
+    path: /effect-analysis/getCustomerFocus
+    params:
+      callScriptId: 1
+      timeType: All
+    expected:
+      status: 405
+    tags: [异常]

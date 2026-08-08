@@ -1,5 +1,5 @@
 cases:
-  - name: 话术需求-API-262 - 正常请求
+  - name: 话术需求-API-262
     method: GET
     path: /callScriptRequirement/detail/1
     expected:
@@ -8,3 +8,46 @@ cases:
         type: object
         required: [msg, code, code, msg]
     tags: [正常流]
+  - name: 话术需求-API-263 - 用POST调GET接口
+    method: POST
+    path: /callScriptRequirement/detail/1
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 话术需求-API-269 - 反馈建议
+    method: POST
+    path: /callScriptRequirement/feedback
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 话术需求-API-270 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /callScriptRequirement/confirm/1
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 话术需求-API-279 - 查询用户全部套餐列表
+    method: POST
+    path: /callScriptRequirement/list
+    headers:
+      Authorization: 
+    expected:
+      status: 401
+    tags: [权限]
+  - name: 话术需求-API-280 - 查询用户全部套餐列表
+    method: POST
+    path: /callScriptRequirement/list
+    headers:
+      Authorization: 
+    expected:
+      status: 401
+    tags: [权限]
+  - name: 话术需求-API-282 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /enterprise/callScriptRequirement/downloadByUrl
+    params:
+      fileUrl: 'https://aiwh.oss-cn-shenzhen.aliyuncs.com/env_dev/export/ent/totalBilling/20250926/总账单全量_20250926174246.xlsx'
+      fileName: 通话详情 外呼记录
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

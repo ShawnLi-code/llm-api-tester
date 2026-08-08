@@ -1,0 +1,19 @@
+cases:
+  - name: 黑名单分-API-131 - 僵尸接口——直接调用验证是否仍在线
+    method: DELETE
+    path: /black_group/delete
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 黑名单分-API-132 - 批量删除黑名单分组
+    method: DELETE
+    path: /black_group/batch/delete
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 黑名单分-API-134 - 导出黑名单分组下的黑名单数据
+    method: POST
+    path: /black_group/export
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

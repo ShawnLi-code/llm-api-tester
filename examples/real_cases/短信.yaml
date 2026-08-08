@@ -1,5 +1,5 @@
 cases:
-  - name: 短信-API-100 - 正常请求
+  - name: 短信-API-100
     method: GET
     path: /smsMessage/record/send
     params:
@@ -14,3 +14,36 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 短信-API-101 - 用POST调GET接口
+    method: POST
+    path: /smsMessage/record/send
+    params:
+      userId: 1
+      callScriptId: 1
+      sendStatus: SENDING
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 短信-API-105 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /smsMessage/export/record/send
+    params:
+      userId: 1
+      callScriptId: 1
+      sendStatus: SENDING
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 短信-API-107 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /smsMessage/export/statistics/send
+    params:
+      callScriptId: 1
+      timeType: All
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

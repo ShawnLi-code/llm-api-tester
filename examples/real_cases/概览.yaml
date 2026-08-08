@@ -1,5 +1,5 @@
 cases:
-  - name: 概览-API-041 - 正常请求
+  - name: 概览-API-041 - 个人信息
     method: GET
     path: /overview/personal/info
     expected:
@@ -8,7 +8,13 @@ cases:
         type: object
         required: [accountType, balance, voiceTimeTotal, voiceTimeBalance, voiceTimeUsed, smsSendNum]
     tags: [正常流]
-  - name: 概览-API-046 - 正常请求
+  - name: 概览-API-042 - 用POST调GET接口
+    method: POST
+    path: /overview/personal/info
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 概览-API-046 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
@@ -17,39 +23,45 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
-  - name: 概览-API-047 - callScriptId 传入负数
+  - name: 概览-API-047 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
-  - name: 概览-API-048 - callScriptId 传入超大值
+  - name: 概览-API-048 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
-  - name: 概览-API-049 - callScriptId 传入非数字
+  - name: 概览-API-049 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
-  - name: 概览-API-050 - timeType 超长250字符
+  - name: 概览-API-050 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
-  - name: 概览-API-051 - startTime 超长250字符
+  - name: 概览-API-051 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
-  - name: 概览-API-052 - endTime 超长250字符
+  - name: 概览-API-052 - 通知公告
     method: GET
     path: /overview/notice/list
     expected:
       status: 400
     tags: [边界值]
+  - name: 概览-API-053 - 用POST调GET接口
+    method: POST
+    path: /overview/notice/list
+    expected:
+      status: 405
+    tags: [异常]

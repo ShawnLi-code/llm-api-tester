@@ -1,5 +1,5 @@
 cases:
-  - name: 客户画像-API-209 - 正常请求
+  - name: 客户画像-API-209
     method: GET
     path: /customerPortrait/getCustomerFocus
     params:
@@ -65,3 +65,12 @@ cases:
     expected:
       status: 400
     tags: [边界值]
+  - name: 客户画像-API-216 - 用POST调GET接口
+    method: POST
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 405
+    tags: [异常]

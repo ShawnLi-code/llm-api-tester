@@ -13,6 +13,7 @@ class Expected(BaseModel):
     """
 
     status: Optional[int] = None
+    status_in: Optional[list[int]] = None  # 多个可接受状态码（僵尸验证: [200, 404]）
     json_schema: Optional[dict] = Field(default=None, alias="schema")  # JSON Schema
     body: Optional[dict] = None    # exact body match (deep-equal on subset of keys)
     latency_ms_max: Optional[int] = None

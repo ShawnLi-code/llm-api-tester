@@ -1,0 +1,7 @@
+cases:
+  - name: WebS-API-188 - /webSocket/msg/send
+    method: POST
+    path: /webSocket/msg/send
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

@@ -96,6 +96,9 @@ def validate_response(status_code: int, payload: Any, expected: Any) -> tuple[st
     if expected.get("status") is not None and status_code != expected["status"]:
         ok = False
         errors.append(f"status {status_code} != expected {expected['status']}")
+    if expected.get("status_in") is not None and status_code not in expected["status_in"]:
+        ok = False
+        errors.append(f"status {status_code} not in expected {expected['status_in']}")
     schema = expected.get("schema")
     if schema:
         required = schema.get("required")

@@ -1,5 +1,5 @@
 cases:
-  - name: 客户端--API-358 - 正常请求
+  - name: 客户端--API-358
     method: GET
     path: /customers/follows/list
     params:
@@ -16,7 +16,27 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
-  - name: 客户端--API-366 - 正常请求
+  - name: 客户端--API-359 - 用POST调GET接口
+    method: POST
+    path: /customers/follows/list
+    params:
+      callScriptId: 1
+      followStatus: 1
+      isExported: 1
+      callLabelId: 1
+      userId: 1
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 客户端--API-364 - 导出客户管理列表
+    method: POST
+    path: /customers/export/list
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 客户端--API-366 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
@@ -25,7 +45,13 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
-  - name: 客户端--API-371 - 正常请求
+  - name: 客户端--API-367 - 用POST调GET接口
+    method: POST
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 客户端--API-371 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
@@ -34,39 +60,45 @@ cases:
         type: object
         required: [code, msg]
     tags: [正常流]
-  - name: 客户端--API-372 - 缺失必填参数 customerNumber
+  - name: 客户端--API-372 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [参数校验]
-  - name: 客户端--API-373 - 缺失必填参数 callScriptId
+  - name: 客户端--API-373 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [参数校验]
-  - name: 客户端--API-374 - customerNumber 超长250字符
+  - name: 客户端--API-374 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [边界值]
-  - name: 客户端--API-375 - callScriptId 传入负数
+  - name: 客户端--API-375 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [边界值]
-  - name: 客户端--API-376 - callScriptId 传入超大值
+  - name: 客户端--API-376 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [边界值]
-  - name: 客户端--API-377 - callScriptId 传入非数字
+  - name: 客户端--API-377 - 获取话术下拉
     method: GET
     path: /customers/getCallScriptDropDown
     expected:
       status: 400
     tags: [边界值]
+  - name: 客户端--API-378 - 用POST调GET接口
+    method: POST
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 405
+    tags: [异常]

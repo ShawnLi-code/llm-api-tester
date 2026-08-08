@@ -1,0 +1,19 @@
+cases:
+  - name: 通用请求-API-002 - 通用单个文件上传请求，上传到阿里云，平常的文件上传用此接口
+    method: POST
+    path: /common/upload
+    expected:
+      status: 200
+    tags: [僵尸验证]
+  - name: 通用请求-API-003 - 通用多个文件上传请求，上传到阿里云，平常的文件上传用此接口
+    method: POST
+    path: /common/uploads
+    expected:
+      status: 200
+    tags: [僵尸验证]
+  - name: 通用请求-API-006 - 图片上传
+    method: POST
+    path: /common/uploadImage
+    expected:
+      status: 200
+    tags: [僵尸验证]

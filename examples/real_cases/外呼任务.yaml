@@ -1,5 +1,23 @@
 cases:
-  - name: 外呼任务-API-119 - 正常请求
+  - name: 外呼任务-API-112 - 僵尸接口——直接调用验证是否仍在线
+    method: DELETE
+    path: /task-outbound/del/999999
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 外呼任务-API-113 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /task-outbound/start-up/1
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 外呼任务-API-114 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /task-outbound/pause/1
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]
+  - name: 外呼任务-API-119
     method: GET
     path: /task-outbound/listPage
     params:
@@ -14,3 +32,21 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 外呼任务-API-120 - 用POST调GET接口
+    method: POST
+    path: /task-outbound/listPage
+    params:
+      scriptId: 1
+      taskType: 1
+      state: 1
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
+  - name: 外呼任务-API-126 - 重呼任务
+    method: POST
+    path: /task-outbound/redial
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

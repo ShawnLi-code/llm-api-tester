@@ -1,0 +1,10 @@
+cases:
+  - name: 通话计费-API-198 - 僵尸接口——直接调用验证是否仍在线
+    method: POST
+    path: /chargeMonitor/export/trend/list
+    params:
+      callScriptId: 1
+      timeType: All
+    expected:
+      status_in: [200, 404]
+    tags: [僵尸验证]

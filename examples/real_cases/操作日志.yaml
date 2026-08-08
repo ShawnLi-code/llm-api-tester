@@ -1,5 +1,5 @@
 cases:
-  - name: 操作日志-API-183 - 正常请求
+  - name: 操作日志-API-183
     method: GET
     path: /operationLog/list
     params:
@@ -12,3 +12,13 @@ cases:
         type: object
         required: [records, total, size, current, orders, optimizeCountSql]
     tags: [正常流]
+  - name: 操作日志-API-184 - 用POST调GET接口
+    method: POST
+    path: /operationLog/list
+    params:
+      module: COMMON
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 405
+    tags: [异常]
