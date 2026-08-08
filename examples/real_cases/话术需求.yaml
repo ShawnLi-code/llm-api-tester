@@ -1,0 +1,10 @@
+cases:
+  - name: 话术需求-API-262 - 正常请求
+    method: GET
+    path: /callScriptRequirement/detail/1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [msg, code, code, msg]
+    tags: [正常流]

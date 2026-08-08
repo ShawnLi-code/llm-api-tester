@@ -1,0 +1,10 @@
+cases:
+  - name: 声音复刻-API-238 - 正常请求
+    method: GET
+    path: /audio/cody/select/trailUrl
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]

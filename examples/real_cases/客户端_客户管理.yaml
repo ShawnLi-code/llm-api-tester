@@ -1,0 +1,72 @@
+cases:
+  - name: 客户端--API-358 - 正常请求
+    method: GET
+    path: /customers/follows/list
+    params:
+      callScriptId: 1
+      followStatus: 1
+      isExported: 1
+      callLabelId: 1
+      userId: 1
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]
+  - name: 客户端--API-366 - 正常请求
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 客户端--API-371 - 正常请求
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 客户端--API-372 - 缺失必填参数 customerNumber
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [参数校验]
+  - name: 客户端--API-373 - 缺失必填参数 callScriptId
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [参数校验]
+  - name: 客户端--API-374 - customerNumber 超长250字符
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户端--API-375 - callScriptId 传入负数
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户端--API-376 - callScriptId 传入超大值
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户端--API-377 - callScriptId 传入非数字
+    method: GET
+    path: /customers/getCallScriptDropDown
+    expected:
+      status: 400
+    tags: [边界值]

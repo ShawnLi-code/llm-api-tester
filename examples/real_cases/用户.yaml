@@ -1,0 +1,31 @@
+cases:
+  - name: 用户-API-012 - 正常请求
+    method: GET
+    path: /user/callScript
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 用户-API-020 - 正常请求
+    method: GET
+    path: /user/getAnnouncement/1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [id, userId, msg, announcementId, code, msg]
+    tags: [正常流]
+  - name: 用户-API-021 - 缺失必填参数 avatar
+    method: GET
+    path: /user/getAnnouncement/1
+    expected:
+      status: 400
+    tags: [参数校验]
+  - name: 用户-API-022 - avatar 超长250字符
+    method: GET
+    path: /user/getAnnouncement/1
+    expected:
+      status: 400
+    tags: [边界值]

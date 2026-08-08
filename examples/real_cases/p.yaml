@@ -1,0 +1,34 @@
+cases:
+  - name: <p>-API-223 - 正常请求
+    method: GET
+    path: /balance/check/1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: <p>-API-224 - 缺失必填参数 userId
+    method: GET
+    path: /balance/check/1
+    expected:
+      status: 400
+    tags: [参数校验]
+  - name: <p>-API-225 - userId 传入负数
+    method: GET
+    path: /balance/check/1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: <p>-API-226 - userId 传入超大值
+    method: GET
+    path: /balance/check/1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: <p>-API-227 - userId 传入非数字
+    method: GET
+    path: /balance/check/1
+    expected:
+      status: 400
+    tags: [边界值]

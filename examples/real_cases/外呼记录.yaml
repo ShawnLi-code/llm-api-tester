@@ -1,0 +1,37 @@
+cases:
+  - name: 外呼记录-API-086 - 正常请求
+    method: GET
+    path: /call-record/list
+    params:
+      numberStatusList: 'NUMBER_STOP,NUMBER_DEAD'
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]
+  - name: 外呼记录-API-093 - 正常请求
+    method: GET
+    path: /call-record/list
+    params:
+      userId: 1
+      callScriptId: 1
+      callStatus: 1
+      labelId: 1
+      hanger: 1
+      tenantId: 1
+      startCallDuration: 1
+      endCallDuration: 1
+      startChatTimes: 1
+      endChatTimes: 1
+      numberStatus: CALL_SUCCESS
+      firstChoice: true
+      pageNum: 1
+      pageSize: 10
+      sortType: 1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]

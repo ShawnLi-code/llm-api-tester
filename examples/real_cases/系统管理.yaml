@@ -1,0 +1,79 @@
+cases:
+  - name: 系统管理-API-153 - 正常请求
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [accountType, packageName, phone, concurrentTotal, concurrentGive, voiceTimeTotal]
+    tags: [正常流]
+  - name: 系统管理-API-154 - title 超长250字符
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-155 - startTime 超长250字符
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-156 - endTime 超长250字符
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-157 - pageNum 传入负数
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-158 - pageNum 传入超大值
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-159 - pageNum 传入非数字
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-160 - pageSize 传入负数
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-161 - pageSize 传入超大值
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-162 - pageSize 传入非数字
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-163 - phone 超长250字符
+    method: GET
+    path: /sysManager/personal/info
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 系统管理-API-169 - 正常请求
+    method: GET
+    path: /sysManager/package/list
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]

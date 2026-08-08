@@ -1,0 +1,14 @@
+cases:
+  - name: 操作日志-API-183 - 正常请求
+    method: GET
+    path: /operationLog/list
+    params:
+      module: COMMON
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]

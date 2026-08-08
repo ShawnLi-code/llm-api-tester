@@ -1,0 +1,37 @@
+cases:
+  - name: 登录（旧-API-064 - 正常请求
+    method: GET
+    path: /getInfo
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [msg, code, permissions, roles, user, code]
+    tags: [正常流]
+  - name: 登录（旧-API-069 - 正常请求
+    method: GET
+    path: /getRouters
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 登录（旧-API-070 - callScriptId 传入负数
+    method: GET
+    path: /getRouters
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 登录（旧-API-071 - callScriptId 传入超大值
+    method: GET
+    path: /getRouters
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 登录（旧-API-072 - callScriptId 传入非数字
+    method: GET
+    path: /getRouters
+    expected:
+      status: 400
+    tags: [边界值]

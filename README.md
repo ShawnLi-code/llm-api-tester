@@ -100,3 +100,45 @@ generated 4 cases -> examples/from_spec.yaml   # OpenAPI 生成
 - [ ] P1: 失败自动三分类（真 bug / 环境 / 用例过期）
 - [ ] P2: RAG 知识库（接口文档/需求文档 → 生成上下文）
 - [ ] P2: Keploy 式流量录制回放（真实流量 → mock + 用例）
+
+## 真实环境接入（智策云语 dev）
+
+### Excel → YAML
+```bash
+python scripts/convert_excel_to_yaml.py   # 接口测试用例.xlsx -> examples/real_cases/*.yaml
+```
+只转 GET 查询类（正常流/参数校验/边界值），路径参数拆为 params，
+**预期关键字段列 → schema 断言**（required 字段校验），预期状态码用 Excel 原始值
+（边界值/参数校验保留 400 预期以暴露服务端校验缺失）。
+
+```bash
+python scripts/gen_allure_report.py
+# 打开 reports/allure-report/index.html
+```
+**注意**：Allure 报告不能直接双击 file:// 打开（浏览器禁止 fetch 本地 JSON，
+会一直"加载中"）。必须用本地 HTTP 服务：
+```bash
+python scripts/serve_allure_report.py   # 起服务并自动开浏览器
+```
+### 运行
+```bash
+python scripts/run_real.py                # 全量 95 条
+python scripts/run_real.py 概览           # 按模块
+python scripts/run_real.py --normal-only  # 只跑正常流
+```
+
+认证：读取 recon/auth_default.json 的 Admin-Token cookie（上级目录），
+token 过期需重新抓取（浏览器 devtools -> Application -> Cookies）。
+
+### Allure 报告
+```bash
+python scripts/gen_allure_report.py
+# 打开 reports/allure-report/index.html
+```
+每个用例含：请求信息附件 + 响应内容附件 + 失败原因附件，
+按 epic(智策云语) / feature(模块) / story(用例) 分层。
+
+### 已知环境问题
+- dev 环境 API 网关偶发不可用（返回 SPA index.html 兜底），表现为 200 + text/html，
+  需等环境恢复后重跑（2026-08-08 12:50 观测到）。
+- 服务端对边界值/参数校验的非法参数不返回 400（实测 200），保留 400 预期以暴露缺陷。

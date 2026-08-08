@@ -1,0 +1,16 @@
+cases:
+  - name: 短信-API-100 - 正常请求
+    method: GET
+    path: /smsMessage/record/send
+    params:
+      userId: 1
+      callScriptId: 1
+      sendStatus: SENDING
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]

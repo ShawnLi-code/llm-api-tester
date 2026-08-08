@@ -1,0 +1,13 @@
+cases:
+  - name: 通知公告-API-177 - 正常请求
+    method: GET
+    path: /announcement/list
+    params:
+      pageNum: 1
+      pageSize: 10
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]

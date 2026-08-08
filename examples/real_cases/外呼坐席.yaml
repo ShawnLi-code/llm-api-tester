@@ -1,0 +1,19 @@
+cases:
+  - name: 外呼坐席-API-199 - 正常请求
+    method: GET
+    path: /call/agent/select/canUse
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 外呼坐席-API-204 - 正常请求
+    method: GET
+    path: /call/agent/seatNum
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [remainSeatNum, totalSeatNum, hasProgressTask, code, msg]
+    tags: [正常流]

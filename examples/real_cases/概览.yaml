@@ -1,0 +1,55 @@
+cases:
+  - name: 概览-API-041 - 正常请求
+    method: GET
+    path: /overview/personal/info
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [accountType, balance, voiceTimeTotal, voiceTimeBalance, voiceTimeUsed, smsSendNum]
+    tags: [正常流]
+  - name: 概览-API-046 - 正常请求
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 概览-API-047 - callScriptId 传入负数
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 概览-API-048 - callScriptId 传入超大值
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 概览-API-049 - callScriptId 传入非数字
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 概览-API-050 - timeType 超长250字符
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 概览-API-051 - startTime 超长250字符
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 概览-API-052 - endTime 超长250字符
+    method: GET
+    path: /overview/notice/list
+    expected:
+      status: 400
+    tags: [边界值]

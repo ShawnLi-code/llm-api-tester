@@ -1,0 +1,67 @@
+cases:
+  - name: 客户画像-API-209 - 正常请求
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [code, msg]
+    tags: [正常流]
+  - name: 客户画像-API-210 - taskOutboundId 传入负数
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户画像-API-211 - taskOutboundId 传入超大值
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户画像-API-212 - taskOutboundId 传入非数字
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户画像-API-213 - callScriptId 传入负数
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户画像-API-214 - callScriptId 传入超大值
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]
+  - name: 客户画像-API-215 - callScriptId 传入非数字
+    method: GET
+    path: /customerPortrait/getCustomerFocus
+    params:
+      taskOutboundId: 1
+      callScriptId: 1
+    expected:
+      status: 400
+    tags: [边界值]

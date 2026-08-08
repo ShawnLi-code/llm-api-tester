@@ -1,0 +1,58 @@
+cases:
+- name: Get users without auth token
+  method: GET
+  path: /users
+  headers: {}
+  params: {}
+  expected:
+    status: 401
+  enabled: true
+  tags:
+  - llm
+- name: Create user with missing required email field
+  method: POST
+  path: /users
+  headers: {}
+  params: {}
+  body:
+    name: Test User
+  expected:
+    status: 422
+  enabled: true
+  tags:
+  - llm
+- name: Create user with invalid email format
+  method: POST
+  path: /users
+  headers: {}
+  params: {}
+  body:
+    name: Test User
+    email: not-an-email
+  expected:
+    status: 422
+  enabled: true
+  tags:
+  - llm
+- name: Get user with non-numeric user_id boundary
+  method: GET
+  path: /users/{user_id}
+  headers: {}
+  params:
+    user_id: abc
+  expected:
+    status: 422
+  enabled: true
+  tags:
+  - llm
+- name: Get nonexistent user
+  method: GET
+  path: /users/{user_id}
+  headers: {}
+  params:
+    user_id: 999999
+  expected:
+    status: 404
+  enabled: true
+  tags:
+  - llm

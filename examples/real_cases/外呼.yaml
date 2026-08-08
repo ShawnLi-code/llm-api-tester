@@ -1,0 +1,13 @@
+cases:
+  - name: 外呼-API-191 - 正常请求
+    method: GET
+    path: /outbound/trial/record
+    params:
+      callDirection: 呼出
+      numberStatus: 1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [records, total, size, current, orders, optimizeCountSql]
+    tags: [正常流]
