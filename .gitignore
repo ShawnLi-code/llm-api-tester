@@ -1,0 +1,9 @@
+# 忽略密钥与构建产物
+.env
+*.env
+!*.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+reports/

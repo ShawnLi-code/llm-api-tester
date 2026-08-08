@@ -1,0 +1,40 @@
+cases:
+- name: health
+  method: GET
+  path: /health
+  headers: {}
+  params: {}
+  expected:
+    status: 200
+  enabled: true
+  tags: []
+- name: listUsers
+  method: GET
+  path: /users
+  headers: {}
+  params: {}
+  expected:
+    status: 200
+  enabled: true
+  tags: []
+- name: createUser
+  method: POST
+  path: /users
+  headers: {}
+  params: {}
+  body:
+    name: alice
+    age: 30
+  expected:
+    status: 201
+  enabled: true
+  tags: []
+- name: getUser
+  method: GET
+  path: /users/1
+  headers: {}
+  params: {}
+  expected:
+    status: 200
+  enabled: true
+  tags: []

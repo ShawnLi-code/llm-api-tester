@@ -1,0 +1,91 @@
+cases:
+  - name: health check
+    method: GET
+    path: /health
+    expected:
+      status: 200
+      body:
+        status: ok
+
+  - name: list users default page
+    method: GET
+    path: /users
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [items, total]
+        properties:
+          items:
+            type: array
+          total:
+            type: integer
+
+  - name: list users with limit param
+    method: GET
+    path: /users
+    params:
+      limit: 1
+      offset: 1
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [items]
+        properties:
+          items:
+            type: array
+
+  - name: get user by id
+    method: GET
+    path: /users/1
+    expected:
+      status: 200
+      body:
+        id: 1
+        name: alice
+
+  - name: get missing user -> 404
+    method: GET
+    path: /users/999
+    expected:
+      status: 404
+
+  - name: create user ok
+    method: POST
+    path: /users
+    body:
+      name: carol
+    expected:
+      status: 201
+      schema:
+        type: object
+        required: [id, name]
+        properties:
+          id: {type: integer}
+          name: {type: string}
+
+  - name: create user missing name -> 400
+    method: POST
+    path: /users
+    body: {}
+    expected:
+      status: 400
+
+  - name: config nested shape
+    method: GET
+    path: /config
+    expected:
+      status: 200
+      schema:
+        type: object
+        required: [title, category, graph]
+        properties:
+          title: {type: string}
+          category: {type: string}
+          graph:
+            type: object
+            required: [enabled]
+            properties:
+              enabled: {type: boolean}
+              depth: {type: integer}

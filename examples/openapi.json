@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "Demo API", "version": "1.0.0"},
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {"200": {"description": "ok"}}
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "listUsers",
+        "responses": {"200": {"description": "list of users"}}
+      },
+      "post": {
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {"type": "string", "example": "alice"},
+                  "age": {"type": "integer", "example": 30}
+                }
+              }
+            }
+          }
+        },
+        "responses": {"201": {"description": "created"}}
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "operationId": "getUser",
+        "parameters": [
+          {"name": "user_id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {"200": {"description": "user detail"}}
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"}
+        }
+      }
+    }
+  }
+}
