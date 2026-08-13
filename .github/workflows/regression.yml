@@ -1,0 +1,73 @@
+name: Regression
+
+on:
+  schedule:
+    - cron: '0 1 * * *'        # 每天 UTC 01:00 = 北京时间 09:00
+  workflow_dispatch:           # 支持手动触发（仓库 Actions 页面点 Run workflow）
+
+jobs:
+  real-regression:
+    name: 真实环境回归
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install allure-pytest
+
+      - name: 写入项目 token
+        env:
+          AUTH_JSON: ${{ secrets.OMP_AUTH_JSON }}
+        run: |
+          if [ -z "$AUTH_JSON" ]; then
+            echo "!! 缺少 GitHub Secret: OMP_AUTH_JSON（auth.json 内容），请到仓库 Settings → Secrets 配置" >&2
+            exit 1
+          fi
+          mkdir -p projects/ziceyunyu
+          echo "$AUTH_JSON" > projects/ziceyunyu/auth.json
+          echo "auth.json 已写入（${#AUTH_JSON} 字节）"
+
+      - name: 执行真实回归 + 生成结果文件
+        id: regression
+        run: |
+          mkdir -p reports
+          python -m pytest tests/test_real.py -v \
+            --alluredir=reports/allure-results \
+            --junitxml=reports/junit.xml 2>&1 | tee reports/run.log
+        continue-on-error: true   # 失败也继续，用于通知 + 报告
+
+      - name: 安装 allure CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq default-jre-headless
+          npm install -g allure-commandline --silent
+
+      - name: 生成 Allure 报告
+        run: allure generate reports/allure-results -o reports/allure-report --clean
+
+      - name: 上传 Allure 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report
+          retention-days: 14
+
+      - name: 飞书通知
+        if: always()
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
+          REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python scripts/notify_feishu.py \
+            --junit reports/junit.xml \
+            --title "接口自动化回归" \
+            --report-url "$REPORT_URL"

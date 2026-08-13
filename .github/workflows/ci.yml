@@ -26,10 +26,45 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run unit & e2e tests
-        run: python -m pytest tests/ -v
+        run: |
+          mkdir -p reports
+          python -m pytest tests/ -v --junitxml=reports/junit.xml
 
       - name: Install ruff
         run: pip install ruff
 
       - name: Lint
         run: ruff check src tests scripts
+
+      - name: Upload junit report (3.12 only)
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-junit
+          path: reports/junit.xml
+          retention-days: 3
+
+  notify:
+    name: 飞书通知（main 分支失败）
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download junit report
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-junit
+          path: reports
+
+      - name: 发送失败通知
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
+          REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python scripts/notify_feishu.py \
+            --junit reports/junit.xml \
+            --title "CI 检查失败" \
+            --report-url "$REPORT_URL"

@@ -133,8 +133,36 @@ python -m pytest tests/        # 43 个测试全量自检
 ruff check src tests scripts    # lint（E/F/W/I/UP/B/SIM）
 ```
 
-GitHub Actions CI（`.github/workflows/ci.yml`）在 push/PR 时自动跑
-pytest + ruff，覆盖 Python 3.10 / 3.11 / 3.12。
+## CI / 定时回归 / 飞书通知
+
+GitHub Actions 提供两条流水线，均可在仓库 **Actions** 页面查看：
+
+### 1. CI（push/PR 触发）— `.github/workflows/ci.yml`
+- 3 个 Python 版本（3.10/3.11/3.12）跑 pytest + ruff
+- main 分支 push 失败时自动发飞书通知
+
+### 2. 定时回归（cron + 手动）— `.github/workflows/regression.yml`
+- 每天 **09:00（北京时间）** 自动跑真实环境用例（`tests/test_real.py`）
+- 也可在 Actions 页面手动触发（Run workflow）
+- 失败不中断：生成 Allure 报告 → 上传 artifact → 飞书通知（含通过率 / 失败列表 / 401 过期提示）
+
+### 需要配置的 GitHub Secrets
+
+仓库 **Settings → Secrets and variables → Actions → New repository secret**：
+
+| Secret 名 | 必填 | 内容 |
+|---|---|---|
+| `OMP_AUTH_JSON` | ✅（定时回归用） | `projects/ziceyunyu/auth.json` 的完整内容（含 token） |
+| `FEISHU_WEBHOOK` | ✅（要通知） | 飞书群机器人 webhook |
+| `FEISHU_SECRET` | 可选 | 机器人开启"签名校验"时的密钥 |
+
+> token 会过期，过期后需更新 `OMP_AUTH_JSON`。也可以不配定时回归，只手动在本地跑 `run_real.py`。
+
+### 配置飞书群机器人
+1. 飞书群 → 设置 → 群机器人 → 添加机器人 → **自定义机器人**
+2. 安全设置：建议勾选"签名校验"（拿到的 secret 填 `FEISHU_SECRET`）
+3. 复制 webhook 地址填 `FEISHU_WEBHOOK`
+4. 本地测试：`FEISHU_WEBHOOK=... FEISHU_SECRET=... python scripts/notify_feishu.py --junit <junit文件>`
 
 ## 验证结果
 
