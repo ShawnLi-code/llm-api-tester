@@ -153,16 +153,31 @@ GitHub Actions 提供两条流水线，均可在仓库 **Actions** 页面查看�
 | Secret 名 | 必填 | 内容 |
 |---|---|---|
 | `OMP_AUTH_JSON` | ✅（定时回归用） | `projects/ziceyunyu/auth.json` 的完整内容（含 token） |
-| `FEISHU_WEBHOOK` | ✅（要通知） | 飞书群机器人 webhook |
-| `FEISHU_SECRET` | 可选 | 机器人开启"签名校验"时的密钥 |
+| `FEISHU_WEBHOOK` | 二选一 | 飞书群机器人 webhook（模式 A） |
+| `FEISHU_SECRET` | 可选 | 群机器人"签名校验"密钥 |
+| `FEISHU_APP_ID` | 二选一 | 飞书应用机器人 App ID（模式 B 单聊） |
+| `FEISHU_APP_SECRET` | 二选一 | 应用机器人 App Secret |
+| `FEISHU_OPEN_ID` | 模式 B | 接收人 open_id（用 `get_open_id.py` 查） |
 
 > token 会过期，过期后需更新 `OMP_AUTH_JSON`。也可以不配定时回归，只手动在本地跑 `run_real.py`。
 
-### 配置飞书群机器人
-1. 飞书群 → 设置 → 群机器人 → 添加机器人 → **自定义机器人**
-2. 安全设置：建议勾选"签名校验"（拿到的 secret 填 `FEISHU_SECRET`）
-3. 复制 webhook 地址填 `FEISHU_WEBHOOK`
-4. 本地测试：`FEISHU_WEBHOOK=... FEISHU_SECRET=... python scripts/notify_feishu.py --junit <junit文件>`
+### 配置飞书通知（两种模式任选）
+
+**模式 A：群机器人**（消息发到群里）
+1. 飞书群 → 设置 → 群机器人 → 自定义机器人 → 复制 webhook 填 `FEISHU_WEBHOOK`
+2. 勾了"签名校验"则 secret 填 `FEISHU_SECRET`
+
+**模式 B：应用机器人**（消息单聊发给你，需要应用审核）
+1. 开放平台 `open.feishu.cn/app` 创建企业自建应用，加"机器人"能力，发布审核
+2. 开通权限：`contact:user.id:readonly`（查 open_id）+ `im:message`（发消息），重新发布生效
+3. 查接收人 open_id：
+   ```bash
+   FEISHU_APP_ID=cli_xxx FEISHU_APP_SECRET=xxx python scripts/get_open_id.py --mobile 你的手机号
+   ```
+4. 把 `FEISHU_APP_ID / FEISHU_APP_SECRET / FEISHU_OPEN_ID` 配到 Secrets 或本地环境变量
+
+本地测试：`FEISHU_APP_ID=... FEISHU_APP_SECRET=... FEISHU_OPEN_ID=... \
+python scripts/notify_feishu.py --junit <junit文件>`
 
 ## 验证结果
 

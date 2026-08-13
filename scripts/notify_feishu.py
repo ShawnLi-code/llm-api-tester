@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""发送飞书自定义机器人通知（支持加签模式）。
+"""发送飞书通知，支持两种机器人：
 
-从 pytest --junitxml 读取测试结果，组装富文本卡片发到飞书群。
+模式 A（群机器人 webhook）:
+    FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxx
+    FEISHU_SECRET=加签密钥(可选)
+
+模式 B（应用机器人，单聊）:
+    FEISHU_APP_ID=cli_xxx
+    FEISHU_APP_SECRET=xxx
+    FEISHU_OPEN_ID=ou_xxx（接收人的 open_id）
+
+从 pytest --junitxml 读取测试结果，组装富文本卡片发送。
 
 用法:
-    FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxx \\
-    FEISHU_SECRET=加签密钥(可选) \\
     python scripts/notify_feishu.py --junit reports/junit.xml --title "接口自动化回归"
-
-环境变量:
-    FEISHU_WEBHOOK   群机器人 webhook（必填；为空则跳过发送，不阻塞 CI）
-    FEISHU_SECRET    加签密钥（机器人在"签名校验"模式时必须）
-    REPORT_URL       报告/流水线链接（可选，附在卡片底部）
 
 参数:
     --junit <xml>     pytest --junitxml 输出（必填）
     --title <str>     卡片标题（默认 "接口自动化测试"）
-    --pass-msg       通知主题按结果切换 通过/失败/部分失败
+    --report-url     报告/流水线链接（可选，默认取 REPORT_URL 环境变量）
 """
 from __future__ import annotations
 
@@ -27,6 +29,7 @@ import hmac
 import json
 import os
 import time
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -38,18 +41,17 @@ AUTH_MARKERS = ("401", "token 过期", "token为空", "未登录")
 def load_junit(path: str | Path) -> dict:
     """解析 pytest junit.xml，返回 {tests, failures, errors, skipped, failed_cases}."""
     root = ET.parse(path).getroot()
-    suite = root
     failed_cases: list[dict] = []
-    for tc in suite.iter("testcase"):
+    for tc in root.iter("testcase"):
         failure = tc.find("failure")
         if failure is not None:
             msg = (failure.get("message") or "").strip()
             failed_cases.append({"name": tc.get("name", ""), "message": msg[:200]})
     return {
-        "tests": int(suite.get("tests", 0)),
-        "failures": int(suite.get("failures", 0)),
-        "errors": int(suite.get("errors", 0)),
-        "skipped": int(suite.get("skipped", 0)),
+        "tests": int(root.get("tests", 0)),
+        "failures": int(root.get("failures", 0)),
+        "errors": int(root.get("errors", 0)),
+        "skipped": int(root.get("skipped", 0)),
         "failed_cases": failed_cases,
     }
 
@@ -119,24 +121,53 @@ def build_card(title: str, stats: dict, report_url: str = "") -> dict:
     }
 
 
-def send(webhook: str, secret: str, card: dict) -> tuple[int, str]:
-    """发送卡片到飞书，返回 (http_code, body)。"""
-    url = webhook
-    if secret:
-        timestamp, sign = _feishu_sign(secret)
-        sep = "&" if "?" in url else "?"
-        url = f"{url}{sep}timestamp={timestamp}&sign={sign}"
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(card).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
+def _http_post(url: str, payload: dict, token: str = "") -> tuple[int, str]:
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
+                                 headers=headers, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             return resp.status, resp.read().decode("utf-8", errors="ignore")
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode("utf-8", errors="ignore")
+
+
+def send_webhook(webhook: str, secret: str, card: dict) -> tuple[int, str]:
+    """模式 A：群机器人 webhook 发送。"""
+    url = webhook
+    if secret:
+        timestamp, sign = _feishu_sign(secret)
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}timestamp={timestamp}&sign={sign}"
+    return _http_post(url, card)
+
+
+def _tenant_access_token(app_id: str, app_secret: str) -> str:
+    """应用模式：获取 tenant_access_token。"""
+    code, body = _http_post(
+        "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal",
+        {"app_id": app_id, "app_secret": app_secret},
+    )
+    d = json.loads(body)
+    if d.get("code") != 0:
+        raise RuntimeError(f"获取 tenant_access_token 失败: {d.get('msg')}")
+    return d["tenant_access_token"]
+
+
+def send_as_app(app_id: str, app_secret: str, open_id: str, card: dict) -> tuple[int, str]:
+    """模式 B：应用机器人单聊，发送 interactive 卡片给指定 open_id。"""
+    token = _tenant_access_token(app_id, app_secret)
+    payload = {
+        "receive_id": open_id,
+        "msg_type": "interactive",
+        "content": json.dumps(card["card"], ensure_ascii=False),
+    }
+    return _http_post(
+        "https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id",
+        payload, token,
+    )
 
 
 def main() -> int:
@@ -147,11 +178,6 @@ def main() -> int:
                         help="报告/流水线链接")
     args = parser.parse_args()
 
-    webhook = os.getenv("FEISHU_WEBHOOK", "")
-    if not webhook:
-        print("!! FEISHU_WEBHOOK 未配置，跳过飞书通知")
-        return 0
-
     junit = Path(args.junit)
     if not junit.exists():
         print(f"!! junit 文件不存在: {junit}，跳过通知")
@@ -159,9 +185,25 @@ def main() -> int:
 
     stats = load_junit(junit)
     card = build_card(args.title, stats, args.report_url)
-    code, body = send(webhook, os.getenv("FEISHU_SECRET", ""), card)
-    print(f"飞书通知: HTTP {code} {body[:120]}")
-    return 0 if code == 200 else 1
+
+    # 模式 A：群机器人 webhook
+    webhook = os.getenv("FEISHU_WEBHOOK", "")
+    if webhook:
+        code, body = send_webhook(webhook, os.getenv("FEISHU_SECRET", ""), card)
+        print(f"飞书 webhook 通知: HTTP {code} {body[:120]}")
+        return 0 if code == 200 else 1
+
+    # 模式 B：应用机器人单聊
+    app_id = os.getenv("FEISHU_APP_ID", "")
+    app_secret = os.getenv("FEISHU_APP_SECRET", "")
+    open_id = os.getenv("FEISHU_OPEN_ID", "")
+    if app_id and app_secret and open_id:
+        code, body = send_as_app(app_id, app_secret, open_id, card)
+        print(f"飞书应用单聊通知: HTTP {code} {body[:120]}")
+        return 0 if code == 200 else 1
+
+    print("!! 未配置通知渠道：请设置 FEISHU_WEBHOOK(+SECRET) 或 FEISHU_APP_ID/APP_SECRET/OPEN_ID")
+    return 0
 
 
 if __name__ == "__main__":
