@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import yaml
@@ -46,12 +46,14 @@ class Recorder:
             "method": method.upper(),
             "url": url,
             "request": {
-                "headers": {k: v for k, v in request_headers.items() if k.lower() not in ("authorization", "cookie", "host")},
+                "headers": {k: v for k, v in request_headers.items()
+                             if k.lower() not in ("authorization", "cookie", "host")},
                 "body": _serialize(request_body),
             },
             "response": {
                 "status_code": status_code,
-                "headers": {k: v for k, v in response_headers.items() if k.lower() in ("content-type",)},
+                "headers": {k: v for k, v in response_headers.items()
+                             if k.lower() in ("content-type",)},
                 "body": _serialize(response_body),
             },
             "latency_ms": round(latency_ms, 2),
@@ -71,7 +73,7 @@ class Recorder:
         data = yaml.safe_load(self.path.read_text(encoding="utf-8")) or {}
         self.exchanges = data.get("exchanges") or []
 
-    def find(self, method: str, url: str) -> Optional[dict]:
+    def find(self, method: str, url: str) -> dict | None:
         for ex in self.exchanges:
             if ex["method"] == method.upper() and ex["url"] == url:
                 return ex
@@ -81,7 +83,7 @@ class Recorder:
 class RecorderTransport(httpx.BaseTransport):
     """Transport that records live traffic and/or replays recorded responses."""
 
-    def __init__(self, recorder: Recorder, inner: Optional[httpx.BaseTransport] = None,
+    def __init__(self, recorder: Recorder, inner: httpx.BaseTransport | None = None,
                  replay: bool = False):
         self.recorder = recorder
         self.inner = inner or httpx.HTTPTransport()

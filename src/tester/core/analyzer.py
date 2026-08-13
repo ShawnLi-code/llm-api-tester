@@ -13,8 +13,7 @@ Categories:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
-from typing import Any, Optional
+from dataclasses import dataclass
 
 from tester.core.runner import ReportEntry
 
@@ -32,7 +31,7 @@ class TriageResult:
     confidence: float  # 0..1
     reason: str
     suggestion: str = ""
-    patch: Optional[dict] = None  # suggested new expected block (stale_case only)
+    patch: dict | None = None  # suggested new expected block (stale_case only)
     llm_note: str = ""
 
     def to_dict(self) -> dict:
@@ -59,10 +58,14 @@ def _rule_classify(entry: ReportEntry) -> TriageResult:
     if status in _BUG_STATUSES:
         return TriageResult("bug", 0.7, f"server returned {status} for a valid request",
                             "open a defect with request/response and server logs")
+    if status in (401, 403):
+        return TriageResult("bug", 0.45, f"auth failure (HTTP {status}): {reason[:120]}",
+                            "check token validity/permissions; bulk 401 usually means token "
+                            "expired - refresh auth.json")
     if status == 404 and "expected 404" not in reason:
-        return TriageResult("stale_case", 0.5, f"got 404 but expected success",
+        return TriageResult("stale_case", 0.5, "got 404 but expected success",
                             "endpoint may have moved or been removed; verify contract")
-    if "expected" in reason and f"!= expected" in reason:
+    if "expected" in reason and "!= expected" in reason:
         return TriageResult("stale_case", 0.55,
                             f"status mismatch: {reason[:120]}",
                             "contract may have changed; verify against latest spec")
@@ -74,9 +77,9 @@ def _rule_classify(entry: ReportEntry) -> TriageResult:
                         "manual review required")
 
 
-def _llm_refine(entry: ReportEntry, spec: Optional[dict] = None) -> Optional[TriageResult]:
+def _llm_refine(entry: ReportEntry, spec: dict | None = None) -> TriageResult | None:
     """Ask the LLM to refine classification and propose a patch (stale_case)."""
-    from tester.generators.llm import llm_available, _chat
+    from tester.generators.llm import _chat, llm_available
 
     if not llm_available():
         return None
@@ -115,7 +118,7 @@ def _llm_refine(entry: ReportEntry, spec: Optional[dict] = None) -> Optional[Tri
         return None
 
 
-def triage_failure(entry: ReportEntry, spec: Optional[dict] = None,
+def triage_failure(entry: ReportEntry, spec: dict | None = None,
                    use_llm: bool = True) -> TriageResult:
     """Classify a failure. Rule-based always; LLM refines when available."""
     rule = _rule_classify(entry)
@@ -126,7 +129,7 @@ def triage_failure(entry: ReportEntry, spec: Optional[dict] = None,
     return rule
 
 
-def triage_report(entries: list[ReportEntry], spec: Optional[dict] = None,
+def triage_report(entries: list[ReportEntry], spec: dict | None = None,
                   use_llm: bool = True) -> dict:
     """Triage every failed entry, return {category: [entries]} grouping."""
     grouped: dict[str, list[dict]] = {"bug": [], "env": [], "stale_case": []}

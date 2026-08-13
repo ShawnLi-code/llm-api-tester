@@ -16,7 +16,6 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Optional
 
 try:
     import numpy as np
@@ -67,7 +66,7 @@ class Vectorizer:
 
 
 def cosine(a: list[float], b: list[float]) -> float:
-    return sum(x * y for x, y in zip(a, b))
+    return sum(x * y for x, y in zip(a, b, strict=True))
 
 
 class KnowledgeBase:
@@ -96,7 +95,7 @@ class KnowledgeBase:
         if not self.chunks:
             return []
         qv = self.vectorizer.vectorize(query)
-        scored = [(c, cosine(qv, v)) for c, v in zip(self.chunks, self.vectors)]
+        scored = [(c, cosine(qv, v)) for c, v in zip(self.chunks, self.vectors, strict=True)]
         scored.sort(key=lambda t: t[1], reverse=True)
         return scored[:top_k]
 

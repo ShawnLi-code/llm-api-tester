@@ -10,12 +10,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 
 from tester.core.loader import load_cases
 from tester.core.runner import Runner, RunnerConfig
 from tester.generators.schema import cases_to_yaml, generate_cases_from_openapi, load_openapi
 from tester.report import summarize, write_json_report
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="tester", description="AI-driven API testing harness")
@@ -25,10 +27,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timeout", type=float, default=10.0)
     parser.add_argument("--retries", type=int, default=1)
     parser.add_argument("--gen-openapi", help="generate YAML cases from an OpenAPI spec (writes --out)")
-    parser.add_argument("--gen-llm", help="LLM-generate edge cases from an OpenAPI spec (writes --out, human review before use)")
+    parser.add_argument("--gen-llm", help="LLM-generate edge cases from an OpenAPI spec (writes --out, "
+                                        "human review before use)")
     parser.add_argument("--out", default="examples/from_spec.yaml", help="output for --gen-openapi/--gen-llm")
-    parser.add_argument("--triage", action="store_true", help="classify failures (bug/env/stale_case) into report")
+    parser.add_argument("--triage", action="store_true",
+                        help="classify failures (bug/env/stale_case) into report")
     parser.add_argument("--no-llm", action="store_true", help="force rule-based triage, skip LLM refinement")
+    parser.add_argument("--workers", type=int, default=1, help="parallel workers (default 1 = sequential)")
+    parser.add_argument("--verbose", action="store_true", help="print request/response bodies for each case")
+    parser.add_argument("--no-unwrap", action="store_true",
+                        help="disable {code,msg,data} wrapper auto-unwrap in asserts")
     args = parser.parse_args(argv)
 
     if args.gen_llm:
@@ -56,12 +64,25 @@ def main(argv: list[str] | None = None) -> int:
     if not args.cases:
         parser.error("--cases is required unless --gen-openapi/--gen-llm is used")
     cases = load_cases(args.cases)
-    config = RunnerConfig(base_url=args.base_url, timeout=args.timeout, retries=args.retries)
+    config = RunnerConfig(
+        base_url=args.base_url,
+        timeout=args.timeout,
+        retries=args.retries,
+        max_workers=args.workers,
+        unwrap_data=not args.no_unwrap,
+    )
     entries = Runner(config).run_all(cases)
     print(summarize(entries))
     for e in entries:
         flag = "PASS" if e.passed else "FAIL"
         print(f"  [{flag}] {e.method} {e.url} -> {e.status_code} {e.reason}")
+        if args.verbose:
+            if e.request_params:
+                print(f"         params: {e.request_params}")
+            if e.request_body is not None:
+                print(f"         body: {json.dumps(e.request_body, ensure_ascii=False)[:500]}")
+            if e.response_body is not None:
+                print(f"         resp: {json.dumps(e.response_body, ensure_ascii=False)[:500]}")
     if args.triage:
         from tester.core.analyzer import triage_report
 

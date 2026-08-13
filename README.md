@@ -19,6 +19,9 @@ python -m tester.demo_server  # 启动 demo API (127.0.0.1:8000)
 
 # 运行 YAML 用例
 python -m tester.cli --cases examples/basic.yaml --base-url http://127.0.0.1:8000
+python -m tester.cli --cases examples/basic.yaml --base-url http://127.0.0.1:8000 --workers 8   # 并发 8 线程
+python -m tester.cli --cases examples/basic.yaml --base-url http://127.0.0.1:8000 --verbose     # 打印请求/响应体
+python -m tester.cli --cases ... --triage          # 失败三分类（bug/env/stale_case）
 
 # 从 OpenAPI 生成用例
 python -m tester.cli --gen-openapi examples/openapi.json --out examples/from_spec.yaml
@@ -50,6 +53,26 @@ cases:
 ```
 
 断言三选一或组合：`status`（状态码）、`body`（键子集精确匹配）、`schema`（JSON Schema）。
+可选断言：`status_in`（多个可接受状态码）、`latency_ms_max`（响应耗时上限，超时判失败）。
+
+## 响应包装兼容（unwrap_data）
+
+国内后端常见统一包装 `{code, msg, data}`。默认 `unwrap_data: true` 时，`schema`/`body`
+断言自动作用到 `data` 层；通用 REST API 可在 `config.json` 或 CLI `--no-unwrap` 关闭，
+也可在单个用例 `expected.unwrap_data: false` 覆盖：
+
+```yaml
+cases:
+  - name: 标准 REST 响应（不解包）
+    method: GET
+    path: /api/v1/items
+    expected:
+      status: 200
+      unwrap_data: false
+      schema:
+        type: object
+        required: [items, total]
+```
 
 ## LLM 增强（可选）
 
@@ -78,6 +101,9 @@ cases:
 │   ├── generators/
 │   │   ├── schema.py       # OpenAPI → 确定性用例
 │   │   └── llm.py          # LLM 边界用例 + 失败分析（可选）
+│   ├── core/analyzer.py    # 失败三分类（规则 + LLM 精炼）
+│   ├── recorder.py         # 流量录制/回放（P2）
+│   ├── rag.py              # 轻量 RAG 知识库（P2）
 │   ├── report.py           # 摘要 + JSON 报告
 │   ├── cli.py              # CLI 入口
 │   └── demo_server.py      # 演示 mock API（stdlib only）
@@ -95,13 +121,25 @@ cases:
 │       └── reports/        # allure 结果与报告（gitignore）
 └── tests/
     ├── test_core.py        # 单元测试（模型/加载/校验/生成）
-    └── test_e2e.py         # 端到端（demo server + 报告）
+    ├── test_e2e.py         # 端到端（demo server + 报告）
+    ├── test_evolution.py   # triage / RAG / recorder / CLI
+    └── test_runner_ext.py  # 并发 / 重试 / unwrap / latency 断言
 ```
+
+## 质量保障
+
+```bash
+python -m pytest tests/        # 43 个测试全量自检
+ruff check src tests scripts    # lint（E/F/W/I/UP/B/SIM）
+```
+
+GitHub Actions CI（`.github/workflows/ci.yml`）在 push/PR 时自动跑
+pytest + ruff，覆盖 Python 3.10 / 3.11 / 3.12。
 
 ## 验证结果
 
 ```
-30 passed                    # pytest 自检全量
+43 passed                    # pytest 自检全量（单元 + E2E + 演化特性）
 8 passed, 0 failed           # CLI 端到端（demo server）
 78/176 通过（44.3%）          # 智策云语真实环境（98 失败 = 服务端缺陷暴露）
 ```
@@ -141,12 +179,14 @@ python scripts/run_real.py                      # 默认项目 ziceyunyu 全量
 python scripts/run_real.py --project 新项目      # 指定项目
 python scripts/run_real.py 概览                  # 按模块
 python scripts/run_real.py --normal-only         # 只跑正常流
+python scripts/run_real.py --workers 8           # 并发执行（大量用例时显著提速）
 
 python scripts/gen_allure_report.py --project 新项目   # 生成 Allure
 # 打开 projects/新项目/reports/allure-report/index.html
 ```
 认证：每项目读自己的 `auth.json` 的 Admin-Token cookie；
 token 过期需重新抓取（浏览器 devtools -> Application -> Cookies）。
+若某次跑完超过半数失败均为 401，会提示 token 可能过期并指引刷新位置。
 
 Allure 多文件版不能直接双击 file:// 打开（浏览器禁止 fetch 本地 JSON，
 会一直"加载中"）。**单文件版可双击直接打开**：
@@ -161,6 +201,13 @@ tools/allure-2.30.0/bin/allure.bat generate projects/新项目/reports/allure-re
 ### pytest 直接跑（CI 用）
 ```bash
 OMP_PROJECT=新项目 python -m pytest tests/test_real.py --alluredir=projects/新项目/reports/allure-results
+```
+
+### 本地开发
+```bash
+pip install -e ".[dev]"      # 含 pytest/ruff
+ruff check src tests scripts  # 静态检查
+python -m pytest tests/       # 全量自检
 ```
 
 

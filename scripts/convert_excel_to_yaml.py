@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """把 接口测试用例.xlsx 转成 llm-api-tester 的 YAML 用例格式（v2）。
 
 规则：
@@ -11,13 +10,12 @@
   3. 中文接口描述: 从 recon/api_descriptions.json（接口文档解析）注入 name
   4. 路径修正: {userId} 模板替换为 1, 易失效参数过滤（时间/长ID/dynamicLabelJson）
 """
+import argparse
 import json
 import re
 from pathlib import Path
 
 import openpyxl
-
-import argparse
 
 BASE = Path(__file__).resolve().parent
 XLSX = BASE / "接口测试用例.xlsx"
@@ -230,7 +228,8 @@ def main():
                 for k, v in c["body"].items():
                     text += f"      {k}: {yaml_val(v)}\n"
             if "status_in" in c["expected"]:
-                text += f"    expected:\n      status_in: [{', '.join(str(s) for s in c['expected']['status_in'])}]\n"
+                statuses = ", ".join(str(s) for s in c["expected"]["status_in"])
+                text += f"    expected:\n      status_in: [{statuses}]\n"
             else:
                 text += f"    expected:\n      status: {c['expected']['status']}\n"
             schema = c["expected"].get("schema")

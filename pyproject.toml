@@ -16,7 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 llm = ["openai>=1.30"]
-dev = ["pytest>=8.0", "pytest-asyncio>=0.23"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -25,3 +25,18 @@ include = ["tester*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+  "B008",  # 函数默认参数用可变对象（pydantic 常见写法）
+  "SIM117",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "B017"]
+"scripts/*" = ["E402"]  # sys.path.insert 后再 import project_config 是有意的

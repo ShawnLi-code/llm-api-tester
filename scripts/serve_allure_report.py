@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """本地 HTTP 服务打开 Allure 报告（解决 file:// 打不开/加载中的问题）。
 
 用法:
@@ -32,7 +31,8 @@ def main() -> int:
     report_dir = cfg["reports_dir"] / "allure-report"
 
     if not report_dir.exists():
-        print(f"报告不存在: {report_dir}\n请先运行: python scripts/gen_allure_report.py --project {cfg['project']}")
+        cmd = "python scripts/gen_allure_report.py --project {}".format(cfg["project"])
+        print(f"报告不存在: {report_dir}\n请先运行: {cmd}")
         return 1
 
     handler = lambda *a, **kw: SimpleHTTPRequestHandler(*a, directory=str(report_dir), **kw)  # noqa: E731

@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Optional
 
 from tester.core.case import Expected, TestCase
 
@@ -56,7 +55,7 @@ def _client():
     )
 
 
-def _chat(messages: list[dict], model: Optional[str] = None, temperature: float = 0.2) -> str:
+def _chat(messages: list[dict], model: str | None = None, temperature: float = 0.2) -> str:
     client = _client()
     resp = client.chat.completions.create(
         model=model or os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
@@ -108,7 +107,7 @@ def generate_cases_from_spec(spec: dict, max_cases: int = 5) -> list[TestCase]:
         return []
 
 
-def explain_failure(entry: dict, spec: Optional[dict] = None) -> str:
+def explain_failure(entry: dict, spec: dict | None = None) -> str:
     """LLM analysis of a failed case: likely root cause + fix suggestion."""
     if not llm_available():
         return "(LLM disabled: set OPENAI_API_KEY to enable failure analysis)"

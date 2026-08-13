@@ -1,16 +1,11 @@
 """Tests for evolution features: triage, RAG, recorder, CLI gen-llm."""
-import json
 from pathlib import Path
 
-import pytest
-
-from tester.core.analyzer import TriageResult, _rule_classify, triage_report
+from tester.core.analyzer import _rule_classify, triage_report
 from tester.core.runner import ReportEntry
-from tester.generators.schema import cases_to_yaml, generate_cases_from_openapi, load_openapi
 from tester.rag import KnowledgeBase, build_kb_from_dir, chunk_text
 from tester.recorder import Recorder, RecorderTransport
-from tests.test_core import EXAMPLES, OPENAPI
-
+from tests.test_core import OPENAPI
 
 # ---------- failure triage ----------
 
@@ -104,7 +99,10 @@ def test_recorder_save_load_roundtrip(tmp_path):
 
 def test_recorder_find():
     rec = Recorder("x.yaml")
-    rec.exchanges = [{"method": "GET", "url": "http://x/a", "response": {"status_code": 200, "headers": {}, "body": {"ok": 1}}}]
+    rec.exchanges = [{
+        "method": "GET", "url": "http://x/a",
+        "response": {"status_code": 200, "headers": {}, "body": {"ok": 1}},
+    }]
     assert rec.find("GET", "http://x/a") is not None
     assert rec.find("GET", "http://x/nope") is None
 

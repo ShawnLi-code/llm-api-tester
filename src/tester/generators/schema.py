@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 
@@ -61,10 +61,10 @@ def _example_for(schema: dict | None) -> Any:
         return "2026-01-01T00:00:00Z"
     if t == "string" and schema.get("format") == "email":
         return "test@example.com"
-    return _TYPE_DEFAULTS.get(t, None)
+    return _TYPE_DEFAULTS.get(t)
 
 
-def _body_from_request_body(rb: dict | None) -> Optional[dict]:
+def _body_from_request_body(rb: dict | None) -> dict | None:
     """Extract a sample body from an OpenAPI requestBody."""
     if not rb:
         return None
@@ -75,12 +75,12 @@ def _body_from_request_body(rb: dict | None) -> Optional[dict]:
     return None
 
 
-def _status_from_responses(responses: dict) -> Optional[int]:
+def _status_from_responses(responses: dict) -> int | None:
     """Pick expected status: prefer 2xx, else any explicit code."""
     for code in ("200", "201", "204", "202"):
         if code in responses:
             return int(code)
-    for code, val in responses.items():
+    for code in responses:
         if code.isdigit() and 200 <= int(code) < 300:
             return int(code)
     return None

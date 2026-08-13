@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """一键生成 Allure 报告（多项目隔离版）：跑真实环境用例 -> allure-results -> HTML。
 
 用法:
@@ -45,7 +44,7 @@ def write_environment(cfg: dict) -> None:
 
     def esc(v: str) -> str:
         return "".join(
-            c if ord(c) < 128 else "\\u%04x" % ord(c) for c in v
+            c if ord(c) < 128 else f"\\u{ord(c):04x}" for c in v
         )
 
     lines = "\n".join(f"{esc(k)}={esc(v)}" for k, v in env.items())

@@ -5,7 +5,6 @@ specs embedded in a single document.
 """
 from __future__ import annotations
 
-import json
 import re
 from typing import Any
 
@@ -77,7 +76,8 @@ def _unwrap_data(payload: Any) -> Any:
     return payload
 
 
-def validate_response(status_code: int, payload: Any, expected: Any) -> tuple[str, list[str]]:
+def validate_response(status_code: int, payload: Any, expected: Any,
+                      unwrap: bool = True) -> tuple[str, list[str]]:
     """Validate an HTTP response against a compact expectation.
 
     expected may be:
@@ -86,8 +86,9 @@ def validate_response(status_code: int, payload: Any, expected: Any) -> tuple[st
       - {"body": {...}}                          -> subset deep-equal on payload
     Returns (verdict, errors), verdict in {"passed", "failed", "missing"}.
 
-    兼容真实后端 {code, msg, data} 包装：schema/body 断言自动作用到 data 层
-    （顶层存在同名 key 时优先顶层）。
+    `unwrap=True`（默认）时自动兼容真实后端 {code, msg, data} 包装：
+    schema/body 断言作用到 data 层（顶层存在同名 key 时优先顶层）。
+    通用项目可传 unwrap=False 做标准断言。
     """
     if not isinstance(expected, dict):
         return "missing", ["empty expectation"]
@@ -102,21 +103,21 @@ def validate_response(status_code: int, payload: Any, expected: Any) -> tuple[st
     schema = expected.get("schema")
     if schema:
         required = schema.get("required")
-        # 纯字段存在性断言（Excel 关键字段）-> 宽松跨层校验
+        # 纯字段存在性断言（Excel 关键字段）-> 宽松跨层校验（不依赖 unwrap）
         if required and not schema.get("properties") and schema.get("type") == "object":
             verdict, errs = validate_fields_loose(payload, required)
             if verdict == "failed":
                 ok = False
                 errors.extend(errs)
         else:
-            target = _unwrap_data(payload)
+            target = _unwrap_data(payload) if unwrap else payload
             verdict, errs = validate_case_body(target, schema)
             if verdict == "failed":
                 ok = False
                 errors.extend(errs)
     body = expected.get("body")
     if body:
-        target = _unwrap_data(payload)
+        target = _unwrap_data(payload) if unwrap else payload
         if not isinstance(target, dict):
             ok = False
             errors.append(f"payload not an object: {type(target).__name__}")

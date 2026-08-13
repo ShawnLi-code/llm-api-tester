@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """项目配置加载：多项目隔离的核心。
 
 每个被测项目一个目录 projects/<name>/，含 config.json：

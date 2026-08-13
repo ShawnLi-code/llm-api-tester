@@ -32,7 +32,8 @@ def test_load_cases_skips_disabled():
     p.write_text(
         "cases:\n"
         "  - name: enabled-case\n    method: GET\n    path: /x\n    expected: {status: 200}\n"
-        "  - name: disabled-case\n    method: GET\n    path: /y\n    enabled: false\n    expected: {status: 200}\n",
+        "  - name: disabled-case\n    method: GET\n    path: /y\n    enabled: false\n"
+        "    expected: {status: 200}\n",
         encoding="utf-8",
     )
     try:

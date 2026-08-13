@@ -14,6 +14,7 @@ def server():
     srv = serve_in_thread(port=8123)
     yield srv
     srv.shutdown()
+    srv.server_close()  # 释放端口
 
 
 def test_e2e_basic_cases_pass(server):
