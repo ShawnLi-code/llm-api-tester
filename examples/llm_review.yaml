@@ -1,7 +1,7 @@
 cases:
-- name: Get users without auth token
+- name: Invalid API key on user detail
   method: GET
-  path: /users
+  path: /users/1
   headers: {}
   params: {}
   expected:
@@ -9,50 +9,46 @@ cases:
   enabled: true
   tags:
   - llm
-- name: Create user with missing required email field
+- name: Missing required email field on create user
   method: POST
   path: /users
   headers: {}
   params: {}
   body:
-    name: Test User
+    name: Alice
   expected:
-    status: 422
+    status: 400
   enabled: true
   tags:
   - llm
-- name: Create user with invalid email format
-  method: POST
-  path: /users
+- name: Zero user_id boundary
+  method: GET
+  path: /users/0
   headers: {}
   params: {}
-  body:
-    name: Test User
-    email: not-an-email
   expected:
-    status: 422
+    status: 400
   enabled: true
   tags:
   - llm
-- name: Get user with non-numeric user_id boundary
+- name: Non-numeric user_id
   method: GET
-  path: /users/{user_id}
+  path: /users/abc
   headers: {}
-  params:
-    user_id: abc
+  params: {}
   expected:
-    status: 422
+    status: 400
   enabled: true
   tags:
   - llm
-- name: Get nonexistent user
+- name: Invalid pagination limit boundary
   method: GET
-  path: /users/{user_id}
+  path: /users
   headers: {}
   params:
-    user_id: 999999
+    limit: 0
   expected:
-    status: 404
+    status: 400
   enabled: true
   tags:
   - llm

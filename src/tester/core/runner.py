@@ -73,6 +73,17 @@ class Runner:
         # 用例级 headers 覆盖全局；值为空串/None 表示移除该 header（如权限用例去掉 Authorization）
         headers = {**self.config.headers, **case.headers}
         headers = {k: v for k, v in headers.items() if v not in ("", None)}
+        # HTTP header 值必须是 latin-1 可编码（httpx 内部用 ascii，中文会抛 UnicodeEncodeError）
+        bad_header = next((k for k, v in headers.items()
+                           if any(ord(ch) > 127 for ch in str(v))), None)
+        if bad_header:
+            return ReportEntry(
+                name=case.name, method=case.method, url=url,
+                passed=False,
+                reason=f"header {bad_header!r} 含非 ASCII 字符，HTTP header 不允许中文；"
+                       f"检查 auth.json token / 用例 headers（值: {str(headers[bad_header])[:30]}）",
+                request_body=case.body, request_params=case.params,
+            )
         client = self._get_client()
         last_err: Exception | None = None
         unwrap = case.expected.unwrap_data

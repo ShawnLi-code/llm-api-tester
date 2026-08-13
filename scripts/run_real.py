@@ -60,7 +60,13 @@ def main():
     print(f"=== 项目 {cfg['name']} / {len(files)} 个文件 / {len(all_cases)} 条用例 ===")
     token = get_auth_token(cfg)
     if not token:
-        print(f"!! 未找到 {cfg.get('auth_cookie')}，请刷新 {cfg['project_dir'] / cfg['auth_file']}")
+        auth_path = cfg['project_dir'] / cfg.get('auth_file', 'auth.json')
+        print(f"!! 未找到 {cfg.get('auth_cookie')}，请刷新 {auth_path}")
+        return 1
+    if not token.isascii():
+        auth_path = cfg['project_dir'] / cfg.get('auth_file', 'auth.json')
+        print(f"!! {cfg.get('auth_cookie')} 含非 ASCII 字符（可能是占位符未替换），"
+              f"请把真实 token 填入 {auth_path}")
         return 1
     config = RunnerConfig(
         base_url=base_url_of(cfg),
